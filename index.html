@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG Evaluation Agent</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Inter font -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+        }
+        /* Custom scrollbar for better visual */
+        .custom-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background-color: #f1f5f9;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div id="app" class="max-w-4xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden">
+        
+        <!-- Header -->
+        <header class="bg-indigo-600 text-white p-6">
+            <h1 class="text-3xl font-bold">RAG Evaluation Agent 🧪</h1>
+            <p class="text-indigo-200 mt-1">Test your Big Bang knowledge base and analyze performance.</p>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="p-6 space-y-8">
+
+            <!-- Query Section -->
+            <section class="border border-indigo-200 rounded-xl p-6 bg-indigo-50/50">
+                <h2 class="text-xl font-semibold text-indigo-700 mb-4">Ask a Question</h2>
+                <textarea id="query-input" rows="3" class="w-full p-3 border border-indigo-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 custom-scroll" placeholder="e.g., What are the four main pillars of evidence supporting the Big Bang theory?"></textarea>
+                
+                <div class="mt-4 flex flex-col sm:flex-row sm:items-center justify-between space-y-3 sm:space-y-0">
+                    <button id="run-query-btn" class="bg-indigo-600 text-white font-medium py-2 px-6 rounded-lg shadow-md hover:bg-indigo-700 transition duration-200 disabled:bg-indigo-300">
+                        Run RAG Query
+                    </button>
+                    <div id="loading-indicator" class="hidden text-indigo-600 font-medium flex items-center space-x-2">
+                        <svg class="animate-spin h-5 w-5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Searching and Generating...</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section id="results-section" class="hidden space-y-6">
+                <h2 class="text-2xl font-bold text-gray-800">Query Result</h2>
+                
+                <!-- Answer Card -->
+                <div class="bg-white border-4 border-indigo-400 rounded-xl shadow-lg p-5">
+                    <p class="text-sm font-semibold text-indigo-600 mb-2">LLM Answer</p>
+                    <div id="answer-output" class="text-gray-700 leading-relaxed"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Metrics Card -->
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
+                        <p class="text-sm font-medium text-gray-500">Query Metadata</p>
+                        <ul class="mt-2 text-sm space-y-1">
+                            <li><span class="font-semibold text-gray-700">Time:</span> <span id="time-output" class="text-green-600 font-mono">0.00s</span></li>
+                            <li><span class="font-semibold text-gray-700">Sources:</span> <span id="sources-output" class="text-gray-600"></span></li>
+                        </ul>
+                    </div>
+                     <!-- Contexts Card -->
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm">
+                        <p class="text-sm font-medium text-gray-500">Retrieved Contexts</p>
+                        <div id="contexts-output" class="mt-2 text-xs text-gray-600 space-y-2 custom-scroll max-h-40 overflow-y-auto"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // --- 1. Core RAG Logic (Simulated from rag_agent.py) ---
+
+        // Mock LLM function (Deterministic answers based on keywords)
+        function mockLLMGenerate(prompt) {
+            if (prompt.includes('cheat') || prompt.includes('attendance')) {
+                return "I cannot answer this question as the provided documents are exclusively about the Big Bang theory, cosmology, and the evolution of the universe. There is no information about cheating or associated consequences in the source materials.";
+            }
+            if (prompt.includes('four main pillars')) {
+                return "The four main pillars of evidence supporting the Big Bang theory are the expansion of galaxies (Hubble’s law), the cosmic microwave background radiation (CMB), the abundances of light elements, and the formation and distribution of large-scale cosmic structures. (Source: Evidence-Big Bang.txt)";
+            }
+            if (prompt.includes('age of the universe')) {
+                return "The current estimated age of the universe is roughly 13.8 billion years.";
+            }
+            if (prompt.includes('coined the term')) {
+                return "English astronomer Fred Hoyle coined the term 'Big Bang' during a BBC Radio broadcast in March 1949.";
+            }
+            return "Based on the provided context, I found relevant information to form a detailed answer regarding your query about Big Bang cosmology.";
+        }
+
+        // Mock RAG Query function (Simulates embedding, search, and LLM call)
+        function mockRagQuery(question) {
+            const start = performance.now();
+            let sources = [];
+            let contexts = [];
+            let answer = "";
+            let time = 0;
+
+            // Simple deterministic retrieval simulation
+            if (question.toLowerCase().includes('pillar') || question.toLowerCase().includes('evidence')) {
+                sources = ['Evidence-Big Bang.txt'];
+                contexts = [
+                    "The four pillars are: Hubble's Law, CMB, Light Element Abundances, and Large-Scale Structures.",
+                    "The cosmic microwave background radiation (CMB) provides a snapshot of the universe 380,000 years after the Big Bang."
+                ];
+            } else if (question.toLowerCase().includes('age') || question.toLowerCase().includes('13.8 billion')) {
+                sources = ['Evidence-Big Bang.txt', 'Timeline-Big Bang.txt'];
+                contexts = ["The age of the universe converges on a consistent value of roughly 13.8 billion years."];
+            } else if (question.toLowerCase().includes('cheat') || question.toLowerCase().includes('attendance')) {
+                // Out-of-scope simulation
+                sources = [];
+                contexts = [];
+            } else {
+                sources = ['Big Bang.txt'];
+                contexts = ["The core theory describes how the universe expanded from an initial state of extremely high density and temperature."];
+            }
+
+            // Mock LLM call using the retrieved contexts
+            const contextString = contexts.join('\n\n');
+            const prompt = `Context: ${contextString}\n\nQuestion: ${question}`;
+            answer = mockLLMGenerate(prompt);
+
+            const end = performance.now();
+            time = (end - start) / 1000;
+
+            return { question, answer, sources, contexts, time };
+        }
+
+
+        // --- 2. UI Interaction Logic ---
+
+        document.getElementById('run-query-btn').addEventListener('click', async () => {
+            const queryInput = document.getElementById('query-input');
+            const question = queryInput.value.trim();
+            const resultsSection = document.getElementById('results-section');
+            const loadingIndicator = document.getElementById('loading-indicator');
+            const runButton = document.getElementById('run-query-btn');
+
+            if (question === "") {
+                alert("Please enter a question to run the RAG query.");
+                return;
+            }
+
+            // Disable button and show loading
+            runButton.disabled = true;
+            loadingIndicator.classList.remove('hidden');
+            resultsSection.classList.add('hidden');
+
+            // Simulate delay for a realistic API call
+            await new Promise(resolve => setTimeout(resolve, 800));
+
+            try {
+                // Run the mocked RAG query
+                const result = mockRagQuery(question);
+                
+                // Update UI with results
+                document.getElementById('answer-output').innerHTML = formatText(result.answer);
+                document.getElementById('time-output').textContent = `${result.time.toFixed(4)}s`;
+                document.getElementById('sources-output').textContent = result.sources.length > 0 ? result.sources.join(', ') : 'None found in context.';
+                
+                const contextsOutput = document.getElementById('contexts-output');
+                contextsOutput.innerHTML = '';
+                if (result.contexts.length > 0) {
+                    result.contexts.forEach((context, index) => {
+                        const div = document.createElement('div');
+                        div.className = 'border-l-4 border-gray-300 pl-3 py-1 bg-white shadow-inner rounded-md';
+                        div.textContent = `[Chunk ${index + 1}] ${context.substring(0, 150)}...`;
+                        contextsOutput.appendChild(div);
+                    });
+                } else {
+                    contextsOutput.textContent = "No relevant chunks were retrieved for this query.";
+                }
+
+                resultsSection.classList.remove('hidden');
+
+            } catch (error) {
+                console.error("RAG Query Error:", error);
+                document.getElementById('answer-output').textContent = "An error occurred during the RAG process. Check the console for details.";
+                resultsSection.classList.remove('hidden');
+            } finally {
+                // Restore button and hide loading
+                runButton.disabled = false;
+                loadingIndicator.classList.add('hidden');
+            }
+        });
+
+        // Helper function to format text (e.g., replace source annotations)
+        function formatText(text) {
+            // Simple mock formatting: could handle Markdown if a library was included
+            return text.replace(/\(Source: (.*?)\)/g, (match, p1) => 
+                `<span class="bg-indigo-100 text-indigo-700 text-xs font-semibold px-2 py-0.5 rounded-full ml-1">${p1}</span>`
+            );
+        }
+
+        // Initialize with an example query
+        window.onload = () => {
+            document.getElementById('query-input').value = "What are the four main pillars of evidence supporting the Big Bang theory?";
+        }
+
+    </script>
+</body>
+</html>
