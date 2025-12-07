@@ -1,0 +1,98 @@
+{
+  "metrics": {
+    "total_questions": 7,
+    "successful_retrievals": 6,
+    "hit_rate": 0.8571428571428571,
+    "average_latency": 0.2285714285714286
+  },
+  "results": [
+    {
+      "question": "What are the four main pillars of evidence supporting the Big Bang theory?",
+      "answer": "Simulated answer for: What are the four main pillars of evidence supporting the Big Bang theory?",
+      "sources": [
+        "Big Bang.txt",
+        "Evidence-Big Bang.txt"
+      ],
+      "contexts": [
+        "Context chunk 1 for What are the four main pillars of evidence supporting the Big Bang theory?"
+      ],
+      "time": 0.25,
+      "expected_answer": "...",
+      "category": "factual"
+    },
+    {
+      "question": "Who coined the term \"Big Bang\" and in what context?",
+      "answer": "Simulated answer for: Who coined the term \"Big Bang\" and in what context?",
+      "sources": [
+        "Timeline-Big Bang.txt"
+      ],
+      "contexts": [
+        "Context chunk 1 for Who coined the term \"Big Bang\" and in what context?"
+      ],
+      "time": 0.25,
+      "expected_answer": "...",
+      "category": "factual"
+    },
+    {
+      "question": "What key event happened about 380,000 years after the Big Bang, and what is the resulting radiation called?",
+      "answer": "Simulated answer for: What key event happened about 380,000 years after the Big Bang, and what is the resulting radiation called?",
+      "sources": [
+        "Timeline-Big Bang.txt"
+      ],
+      "contexts": [
+        "Context chunk 1 for What key event happened about 380,000 years after the Big Bang, and what is the resulting radiation called?"
+      ],
+      "time": 0.25,
+      "expected_answer": "...",
+      "category": "timeline/factual"
+    },
+    {
+      "question": "What is the role of the Hubble parameter in determining if physical processes achieved thermal equilibrium in the early universe?",
+      "answer": "Simulated answer for: What is the role of the Hubble parameter in determining if physical processes achieved thermal equilibrium in the early universe?",
+      "sources": [
+        "Timeline-Big Bang.txt"
+      ],
+      "contexts": [
+        "Context chunk 1 for What is the role of the Hubble parameter in determining if physical processes achieved thermal equilibrium in the early universe?"
+      ],
+      "time": 0.25,
+      "expected_answer": "...",
+      "category": "conceptual"
+    },
+    {
+      "question": "What is the \"cosmological lithium problem\"?",
+      "answer": "Simulated answer for: What is the \"cosmological lithium problem\"?",
+      "sources": [
+        "Timeline-Big Bang.txt"
+      ],
+      "contexts": [
+        "Context chunk 1 for What is the \"cosmological lithium problem\"?"
+      ],
+      "time": 0.25,
+      "expected_answer": "...",
+      "category": "problem"
+    },
+    {
+      "question": "What is the current estimated age of the universe?",
+      "answer": "Simulated answer for: What is the current estimated age of the universe?",
+      "sources": [
+        "Timeline-Big Bang.txt"
+      ],
+      "contexts": [
+        "Context chunk 1 for What is the current estimated age of the universe?"
+      ],
+      "time": 0.25,
+      "expected_answer": "...",
+      "category": "factual"
+    },
+    {
+      "question": "What happens if you cheat?",
+      "answer": "Not in context.",
+      "sources": [],
+      "contexts": [],
+      "time": 0.1,
+      "expected_answer": "Not in context.",
+      "category": "out-of-scope"
+    }
+  ]
+}
